@@ -1,0 +1,16 @@
+from datetime import date, timedelta
+import csv
+#print(str(datetime.date.today()).split()[0].split('-')[0])
+
+#testDate = date.today() + timedelta(days = 5)
+
+#print(str(testDate))
+#print(str(date.today()))
+
+#log file things:
+with open('logFile', newline = '') as csvfile:
+    log = csv.writer(csvfile, delimiter = '|')
+    log.writerow(['beans', 'toast', 'sausage'])
+
+
+
