@@ -1,51 +1,61 @@
+#bot.py
+
+'''
+This is the aacf deploy of ticket-sniper 1.0, developed by noach.
+'''
 from textAnalysis import sniper
 
 import discord
-import OS
+import os
 import numpy as np
 from datetime import date,timedelta
 import csv
 
+from dotenv import load_dotenv
 
-#when message is sent check the following:
-#if message_user is younger than 5 days, run the evaluation:
-#   if sniper.analyze(message):
-#       delete message
-#       report incident
 
 def checkYoungMember(dateJoined, checkLength):
-    testDate = date.today() + timedelta(days = checkLength)
-    if dateJoined >= testDate:
-        return true
+    #testDate = datetime.now() + timedelta(days = checkLength)
+    #if dateJoined >= testDate:
+        #return true
+
+    return True
+
+load_dotenv()
+TOKEN = os.getenv('DISCORD_TOKEN')
+GUILD = os.getenv('DISCORD_GUILD')
 
 intents = discord.Intents.default()
+intents.message_content = True #note that this also marked in the discord application manager (privaliged intent)
 intents.messages = True
 
 client = discord.Client(intents = intents)
-guild = discord.Guild
-messages =  ""
 
+@client.event
+async def on_ready():
+    for guild in client.guilds:
+        if guild.name == GUILD:
+            break
 
-print("active")
+    print(
+        f'{client.user} is connected to the following guild:\n'
+        f'{guild.name}(id: {guild.id})'
+    )
+
 @client.event
 async def on_message(message):
 
-    channelIDsToListen = ["CHANNEL IDs"] #fixme ~ channel ids
+    channelIDsToListen = [1311151950087065603] #fixme ~ channel ids
 
     if message.channel.id in channelIDsToListen:
-
-        verify = message.author
+        verify = message.author 
 
         if checkYoungMember(verify.joined_at,7):
+           # print(message.content)
 
             if sniper.snipe(message.content):
-
+                print("hello jits")
                 await message.delete()
 
-
-client.run('1311072442562773022') #put the token here
-
-#serverid ~ noachNet:
-1311151950087065600
-#channelid ~ noachNet/general:
-1311151950087065603
+    
+client.run(TOKEN)
