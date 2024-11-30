@@ -1,0 +1,133 @@
+import pandas as pd
+import numpy as np
+import nltk
+import string
+import re
+import sklearn
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem.porter import PorterStemmer
+from nltk.stem import WordNetLemmatizer
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+from sklearn import svm
+
+import pickle
+
+MODEL = "sniperTraining/class.sav"
+VECTORIZER = "sniperTraining/vectorizer.sav"
+
+def remove_special_characters(text):
+    pattern = r'[^a-zA-Z\s]'
+    cleaned_text = re.sub(pattern, '', text)
+
+    return cleaned_text
+
+def remove_punctuation(text):
+    translator = str.maketrans('', '', string.punctuation)
+    return text.translate(translator)
+
+# remove whitespace
+def remove_whitespace(text):
+    return " ".join(text.split())
+
+
+# remove keyfault stopwords
+
+def remove_stopwords(text):
+    stop_words = set(stopwords.words("english"))
+    word_tokens = word_tokenize(text)
+    filtered_text = [word for word in word_tokens if word not in stop_words]
+    return filtered_text
+
+# Stemming
+
+stemmer = PorterStemmer()
+
+def stem_words(text):
+    word_tokens = word_tokenize(text)
+    stems = [stemmer.stem(word) for word in word_tokens]
+    return stems
+
+# Lemmatization
+lemmatizer = WordNetLemmatizer
+
+def lemma_words(text):
+    word_tokens = word_tokenize(text)
+    lemmatized_words = [lemmatizer.lemmatize(word) for word in text]
+    return lemmatized_words
+
+#if __name__ == '__main__':
+def trainModel():
+    scam_data = pd.read_csv("sniperTraining\scammers.csv") #which data to use
+
+    scam_training = pd.DataFrame(scam_data[['text','tag']])
+
+    scam_training = scam_training.dropna()
+    scam_training = scam_training.reindex()
+
+    # Data Preprocessing
+    scam_training = scam_training.applymap(lambda x: x.lower() if isinstance(x, str) else x)
+
+    # Removes special characters
+    
+    scam_training = scam_training.applymap(lambda x: remove_special_characters(x) if isinstance(x, str) else x)
+    scam_training = scam_training.applymap(lambda x: remove_punctuation (x) if isinstance(x, str) else x)
+    scam_training = scam_training.applymap(lambda x: remove_whitespace(x) if isinstance(x, str) else x)
+    scam_training = scam_training.applymap(lambda x: remove_stopwords(x) if isinstance(x, str) else x)
+    scam_training = scam_training.applymap(lambda x: stem_words(x) if isinstance(x, str) else x)
+    #scam_training = scam_training.applymap(lambda x: lemma_words(x) if isinstance(x, str) else x)
+
+    # Combining both job title and job description
+    #scam_training['combined'] = scam_training['jobtitle'] + scam_training['jobdescription']
+
+    #print(scam_training[scam_training['tag'] == "architect"])
+    print(scam_training['tag'])
+
+    #scam_training = scam_training[scam_training["tag"] != "non_tech"]
+
+    #notech = scam_training[scam_training["tag"] != "non_tech"]
+
+    #print(str(notech['tag'] == "architect"))
+
+
+    X = scam_training['text'].apply(lambda x:x[0])
+    y = scam_training['tag'].apply(lambda x:x[0])
+
+    mlb = sklearn.preprocessing.MultiLabelBinarizer()
+    lb = sklearn.preprocessing.LabelBinarizer()
+
+    # Initialize
+    tfidf_vectorizer = TfidfVectorizer()
+
+    # Fit transform the vectorizer
+
+    X_train_Tfidf_df = tfidf_vectorizer.fit_transform(X).toarray()
+
+    X_train_Tfidf_df = pd.DataFrame(X_train_Tfidf_df)
+
+    s = svm.SVC(C=1.0,kernel = 'rbf',degree = 3,coef0 = 0, probability = True)
+
+    s.fit(X_train_Tfidf_df, y)
+
+    #s_pred = s.predict(X_test_Tfidf_df)
+    #s_predProb = s.predict_proba(X_test_Tfidf_df)
+
+    #sn_pred = sn.predict(Xn_test_Tfidf_df)
+
+    pickle.dump(s, open(MODEL, 'wb'))
+    pickle.dump(tfidf_vectorizer, open(VECTORIZER, 'wb'))
+
+    return tfidf_vectorizer,s
+
+if __name__ == "__main__":
+    trainModel()
+    print(MODEL)
+    print(VECTORIZER)
+
+

@@ -22,14 +22,22 @@ def checkYoungMember(dateJoined, checkLength):
     return True
 
 load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
-GUILD = os.getenv('DISCORD_GUILD')
+TOKEN = str(os.getenv('DISCORD_TOKEN'))
+GUILD = str(os.getenv('DISCORD_GUILD'))
+
+print(TOKEN)
+print(GUILD)
+
+#TOKEN.type()
+#GUILD.type()
 
 intents = discord.Intents.default()
 intents.message_content = True #note that this also marked in the discord application manager (privaliged intent)
 intents.messages = True
 
 client = discord.Client(intents = intents)
+
+theSniper = sniper()
 
 @client.event
 async def on_ready():
@@ -45,7 +53,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
 
-    channelIDsToListen = [1311151950087065603] #fixme ~ channel ids
+    channelIDsToListen = [1311151950087065603] #will need to use aacf channel id's
 
     if message.channel.id in channelIDsToListen:
         verify = message.author 
@@ -53,8 +61,9 @@ async def on_message(message):
         if checkYoungMember(verify.joined_at,7):
            # print(message.content)
 
-            if sniper.snipe(message.content):
-                print("hello jits")
+            if theSniper.snipe(message.content):
+                print("scam message found: ")
+                print(message.content)
                 await message.delete()
 
     

@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 import csv
+from textAnalysis import sniper
 #print(str(datetime.date.today()).split()[0].split('-')[0])
 
 #testDate = date.today() + timedelta(days = 5)
@@ -8,9 +9,19 @@ import csv
 #print(str(date.today()))
 
 #log file things:
+'''
 with open('logFile', newline = '') as csvfile:
     log = csv.writer(csvfile, delimiter = '|')
     log.writerow(['beans', 'toast', 'sausage'])
+'''
+testClass = sniper()
+pred = testClass.snipe(
+"""Hey! I don't know if this is allowed here, but I am trying to sell my foster the people tickets for the observatory
+in santa ana on the 1st of feb. Dm me if interested!"""
+)
+print(pred)
+
+
 
 
 

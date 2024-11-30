@@ -1,9 +1,10 @@
+#import modelTraining #import MODEL, VECTORIZER
+
 import pickle
 
 import pandas as pd
 import numpy as np
 import nltk
-import json
 import string
 from array import array
 import re
@@ -24,33 +25,19 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 # remove keyfault stopwords
 
 class sniper:
-    #this is stupidly slow
+    #this is stupidly slow (BUT NOT REALLY)
     def __init__(self):
-            self.keywords = {'backend': ["backend", "back-end", "back end"],
-                             'cloud': ["cloud", "azure"],
-                             'data': ["data analyst", "data engineer", "data scientist"],
-                             'databases': ["database", "data architect", "aws", "db"],
-                             'hardware': ["embedded", "mechanical", "electrical", 
-                                         "hardware", "photonics", "radio", "circuits"], 
-                             'fullstack': ["full stack", "fullstack", "full-stack"],
-                             'it_devops': ["devops", "i.t.", "it", "information technology"],
-                             'mobile': ["android", "ios", "mobile"],
-                             'networks': ["network", "data communication", "networks"],
-                             'pm': ["project manager", "project coordinator", "pm"],
-                             'qa': ["qa", "quality", "tester", "test"],
-                             'security': ["security", "cyber"],
-                             'systems': ["systems engineer", "system engineer"],
-                             'ui_ux': ["frontend", "ui", "ux", "front-end"]}
-            
-            self.techModel = pickle.load(open("models/tech.sav",'rb'))
-            self.classModel = pickle.load(open("models/class.sav", 'rb'))
-            self.techVectorizer = pickle.load(open("models/vectorizer_noTech.sav",'rb'))
-            self.classVectorizer = pickle.load(open("models/vectorizer.sav", 'rb'))
+        self.keywords = []
+        
+        #self.techModel = pickle.load(open("models/tech.sav",'rb'))
+        self.classModel = pickle.load(open("sniperTraining/class.sav", 'rb'))
+        #self.techVectorizer = pickle.load(open("models/vectorizer_noTech.sav",'rb'))
+        self.classVectorizer = pickle.load(open("sniperTraining/vectorizer.sav", 'rb'))
 
-            self.lemmatizer = WordNetLemmatizer()
-            self.stemmer = PorterStemmer()
+        self.lemmatizer = WordNetLemmatizer()
+        self.stemmer = PorterStemmer()
 
-            print("welcome to blackbox 1.0")
+        print("welcome to blackbox 1.5 ~ made for ticketMaster")
     
     # Removes special characters
     def remove_special_characters(self, text):
@@ -82,7 +69,7 @@ class sniper:
     def remove_whitespace(self,text):
         return " ".join(text.split())
 
-    def preProcess(self, phrase, typ):
+    def preProcess(self, phrase):
         
         processPhrase = phrase #change this later on
         
@@ -103,13 +90,8 @@ class sniper:
 
         #print(processPhrase)
 
-        if typ == "class":
-            phraseVectorized = self.classVectorizer.transform(processPhrase).toarray()
-            phrase_df = pd.DataFrame(phraseVectorized)
-        elif typ == "tech":
-            phraseVectorized = self.techVectorizer.transform(processPhrase).toarray()
-            phrase_df = pd.DataFrame(phraseVectorized)
-
+        phraseVectorized = self.classVectorizer.transform(processPhrase).toarray()
+        phrase_df = pd.DataFrame(phraseVectorized)
         return phrase_df
      
     '''def kWordSearch(self, title):
@@ -122,5 +104,14 @@ class sniper:
         return "no_kClass" #"no keyword class"'''
 
     def snipe(self, phrase):
-        prediction = self.classModel.predict(self.preProcess(phrase,"class"))
-        return prediction[0]
+        prediction = self.classModel.predict(self.preProcess(phrase))
+        if(prediction[0] == "scam"):
+            return True
+        else:
+            return False
+
+
+if __name__ == "__main__":
+    testClass = sniper()
+    pred = testClass.snipe("hello kids")
+    print(pred)
