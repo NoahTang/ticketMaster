@@ -15,11 +15,11 @@ from dotenv import load_dotenv
 
 
 def checkYoungMember(dateJoined, checkLength):
-    #testDate = datetime.now() + timedelta(days = checkLength)
-    #if dateJoined >= testDate:
-        #return true
+    testDate = date.now() + timedelta(days = checkLength)
+    if dateJoined >= testDate:
+        return True
 
-    return True
+    #return True
 
 load_dotenv()
 TOKEN = str(os.getenv('DISCORD_TOKEN'))
@@ -58,12 +58,15 @@ async def on_message(message):
     if message.channel.id in channelIDsToListen:
         verify = message.author 
 
-        if checkYoungMember(verify.joined_at,7):
+        if checkYoungMember(verify.joined_at,1):
            # print(message.content)
 
             if theSniper.snipe(message.content):
                 print("scam message found: ")
                 print(message.content)
+                #with open('logFile', 'w', newline='') as file:
+                 #   writer = csv.writer(file)
+                #    writer.writerow(message.content)
                 await message.delete()
 
     

@@ -63,10 +63,14 @@ def lemma_words(text):
     return lemmatized_words
 
 #if __name__ == '__main__':
-def trainModel():
-    scam_data = pd.read_csv("sniperTraining\scammers.csv") #which data to use
+def trainModel(csvPath):
+    scam_data = pd.read_csv(csvPath) #which data to use
+
+    print(scam_data)
 
     scam_training = pd.DataFrame(scam_data[['text','tag']])
+
+    print(len(scam_training))
 
     scam_training = scam_training.dropna()
     scam_training = scam_training.reindex()
@@ -87,7 +91,7 @@ def trainModel():
     #scam_training['combined'] = scam_training['jobtitle'] + scam_training['jobdescription']
 
     #print(scam_training[scam_training['tag'] == "architect"])
-    print(scam_training['tag'])
+    print(scam_training['tag'], scam_training['text'])
 
     #scam_training = scam_training[scam_training["tag"] != "non_tech"]
 
@@ -126,7 +130,7 @@ def trainModel():
     return tfidf_vectorizer,s
 
 if __name__ == "__main__":
-    trainModel()
+    trainModel("sniperTraining\scammersTwo.csv")
     print(MODEL)
     print(VECTORIZER)
 
