@@ -3,20 +3,28 @@
 '''
 This is the aacf deploy of ticket-sniper 1.0, developed by noach.
 '''
+
 from textAnalysis import sniper
 
 import discord
 import os
 import numpy as np
-from datetime import date,timedelta
+from datetime import date,timedelta, datetime
+import pytz
 import csv
 
 from dotenv import load_dotenv
 
 
 def checkYoungMember(dateJoined, checkLength):
-    testDate = date.now() + timedelta(days = checkLength)
-    if dateJoined >= testDate:
+    #if the date joined + checkLength is greater than the current day, they are young
+    utc=pytz.UTC
+    awareDJ = (dateJoined + timedelta(days = checkLength)).replace(tzinfo=utc)
+    awareTD = datetime.now().replace(tzinfo=utc)
+    #testDate = datetime.now() + timedelta(days = checkLength)
+    if awareDJ >= awareTD:
+        print(awareDJ)
+        print(awareTD)
         return True
 
     #return True
@@ -56,9 +64,9 @@ async def on_message(message):
     channelIDsToListen = [1311151950087065603] #will need to use aacf channel id's
 
     if message.channel.id in channelIDsToListen:
-        verify = message.author 
+        verify = message.author
 
-        if checkYoungMember(verify.joined_at,1):
+        if checkYoungMember(verify.joined_at,10):
            # print(message.content)
 
             if theSniper.snipe(message.content):
