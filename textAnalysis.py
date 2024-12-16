@@ -27,7 +27,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 class sniper:
     #this is stupidly slow (BUT NOT REALLY)
     def __init__(self):
-        self.keywords = []
+        self.keywords = ['billie eilish', 'olivia rodrigo']
         
         #self.techModel = pickle.load(open("models/tech.sav",'rb'))
         self.classModel = pickle.load(open("sniperTraining/class.sav", 'rb'))
@@ -94,18 +94,22 @@ class sniper:
         phrase_df = pd.DataFrame(phraseVectorized)
         return phrase_df
      
-    '''def kWordSearch(self, title):
-        title = title.lower()
-        for i in self.keywords: #the keyword categories
-            for j in range(len(self.keywords[i])): #goes through the array belonging to the categories
-                if((self.keywords[i][j]) in title): #is found inside the phrase
-                    return i
-                
-        return "no_kClass" #"no keyword class"'''
+    def kWordSearch(self, phrase): #not a dictionary anymore, 1D array.
+        phrase = phrase.lower()
+        for i in self.keywords: #the keywords
+            if(i in phrase): #is found inside the phrase
+                print(i)
+                return True
+        print("no_kClass") #"no keyword class"
+        return False
 
     def snipe(self, phrase):
+        if self.kWordSearch(phrase):
+            print("KWORD_CATCH")
+            return True
         prediction = self.classModel.predict(self.preProcess(phrase))
         if(prediction[0] == "scam"):
+            print("MODEL_CATCH")
             return True
         else:
             return False

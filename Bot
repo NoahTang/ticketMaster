@@ -26,12 +26,14 @@ def checkYoungMember(dateJoined, checkLength):
         print(awareDJ)
         print(awareTD)
         return True
-
-    #return True
+    
+def checkMessageLength(messageLength, checkLength):
+    if messageLength >= checkLength:
+        return True
 
 load_dotenv()
 TOKEN = str(os.getenv('DISCORD_TOKEN'))
-GUILD = str(os.getenv('DISCORD_GUILD'))
+GUILD = str(os.getenv('DISCORD_GUILD_AA'))
 
 print(TOKEN)
 print(GUILD)
@@ -58,24 +60,44 @@ async def on_ready():
         f'{guild.name}(id: {guild.id})'
     )
 
+
+#channelIDsToListen = os.getenv('CHANNEL_IDS_NN')#.split(',') #will need to use aacf channel id's
+#channelIDsToListen = [1311151950087065603,1318014453966442516]
+channelIDsToListen = [1158523330970787870,
+                  1161008448872382485,
+                  1251392303596048475,
+                  1158539883590193192,
+                  1158591775632543754,
+                  1158539286673641472,
+                  1162233425340674188,
+                  1158602297555820594,
+                  1198777592346591312,
+                  1298162969007493161,
+                  1305423284208144426]
+print(channelIDsToListen)
+
 @client.event
 async def on_message(message):
 
-    channelIDsToListen = [1311151950087065603] #will need to use aacf channel id's
-
+    if message.author.id in [client.user.id]:
+        return
+    #print(type(message.channel.id))
     if message.channel.id in channelIDsToListen:
         verify = message.author
 
-        if checkYoungMember(verify.joined_at,10):
-           # print(message.content)
+        if checkYoungMember(verify.joined_at,2) and checkMessageLength(len(message.content), 130): #and verify.name == 'xibard':
+            print("message length: " + str(len(message.content)))
+            print(message.content)
 
             if theSniper.snipe(message.content):
                 print("scam message found: ")
                 print(message.content)
-                #with open('logFile', 'w', newline='') as file:
-                 #   writer = csv.writer(file)
-                #    writer.writerow(message.content)
-                await message.delete()
+                with open('logFile', mode = 'a', newline='') as file: #mode = append
+                    writer = csv.writer(file, delimiter = '|')
+                    writer.writerow([message.author, message.content, datetime.now()])
+                await message.delete() #~this is extremely dangerous
 
-    
+                channel = client.get_channel(message.channel.id)
+                await channel.send("scam message detected on " + str(datetime.now()))
+
 client.run(TOKEN)

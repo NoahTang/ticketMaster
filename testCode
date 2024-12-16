@@ -9,17 +9,18 @@ from textAnalysis import sniper
 #print(str(date.today()))
 
 #log file things:
-'''
-with open('logFile', newline = '') as csvfile:
+
+with open('logFile', mode='w', newline = '') as csvfile:
     log = csv.writer(csvfile, delimiter = '|')
     log.writerow(['beans', 'toast', 'sausage'])
+
 '''
 testClass = sniper()
 pred = testClass.snipe(
 """How are you doing?"""
 )
 print(pred)
-
+'''
 
 
 
